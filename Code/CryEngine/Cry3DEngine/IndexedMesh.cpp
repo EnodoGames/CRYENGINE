@@ -71,13 +71,15 @@ void CIndexedMesh::CalcBBox()
 {
 	const int vertexCount = GetVertexCount();
 
-	if (vertexCount == 0 || !m_pPositions)
+//ENODO: added the test if m_pPositionsF16 is not null
+	if (vertexCount == 0 || (!m_pPositions && !m_pPositionsF16))
 	{
 		m_bbox = AABB(Vec3(0, 0, 0), Vec3(0, 0, 0));
 		return;
 	}
 
-	assert(m_pPositionsF16 == 0);
+//ENODO: Removed the assert on m_pPositionsF16
+	//assert(m_pPositionsF16 == 0);
 
 	m_bbox.Reset();
 
@@ -91,7 +93,11 @@ void CIndexedMesh::CalcBBox()
 			{
 				const int nIndex = m_pFaces[i].v[v];
 				assert(nIndex >= 0 && nIndex < vertexCount);
-				m_bbox.Add(m_pPositions[nIndex]);
+//ENODO: Handled both cases m_pPositions and m_pPositionsF16
+				if(m_pPositions)
+					m_bbox.Add(m_pPositions[nIndex]);
+				else
+					m_bbox.Add(m_pPositionsF16[nIndex].ToVec3());
 			}
 		}
 	}
@@ -101,7 +107,11 @@ void CIndexedMesh::CalcBBox()
 
 		for (int i = 0; i < indexCount; ++i)
 		{
-			m_bbox.Add(m_pPositions[m_pIndices[i]]);
+//ENODO: Handled both cases m_pPositions and m_pPositionsF16
+			if (m_pPositions)
+				m_bbox.Add(m_pPositions[m_pIndices[i]]);
+			else
+				m_bbox.Add(m_pPositionsF16[m_pIndices[i]].ToVec3());
 		}
 	}
 }

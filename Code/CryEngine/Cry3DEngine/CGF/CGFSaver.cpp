@@ -755,9 +755,14 @@ int CSaverCGF::SaveNodeMesh(
 		}
 
 		// We don't support writing m_pPositionsF16 (although we can)
+//ENODO: Now we do!!
 		if (mesh.m_pPositionsF16)
 		{
-			assert(0);
+//ENODO: Removed assert and implemented the m_pPositionsF16 writing
+			//assert(0);
+			SwapEndian(mesh.m_pPositionsF16, vertexCount, bSwapEndian);
+			chunk.nStreamChunkID[CGF_STREAM_POSITIONS] = SaveStreamDataChunk(mesh.m_pPositionsF16, CGF_STREAM_POSITIONS, vertexCount, sizeof(mesh.m_pPositionsF16[0]), bSwapEndian);
+			SwapEndian(mesh.m_pPositionsF16, vertexCount, bSwapEndian);
 		}
 
 		if (mesh.m_pPositions && !bInterleaved)

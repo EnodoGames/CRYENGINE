@@ -1192,11 +1192,27 @@ size_t CRenderMesh::SetMesh_Int(CMesh &mesh, int nSecColorsSetOffset, uint32 fla
 	m_nInds = 0;
 	if (mesh.m_pPositions)
 	{
-		m_eVF = EDefaultInputLayouts::P3F_C4B_T2F;
+//ENODO: Added a if to handle the existence of Color1
+		if (mesh.m_pColor1)
+		{
+			m_eVF = EDefaultInputLayouts::P3F_C4B_C4B_T2F;
+		}
+		else
+		{
+			m_eVF = EDefaultInputLayouts::P3F_C4B_T2F;
+		}
 	}
 	else
 	{
-		m_eVF = EDefaultInputLayouts::P3S_C4B_T2S;
+		//ENODO: Added a if to handle the existence of Color1
+		if (mesh.m_pColor1)
+		{
+			m_eVF = EDefaultInputLayouts::P3S_C4B_C4B_T2S;
+		}
+		else
+		{
+			m_eVF = EDefaultInputLayouts::P3S_C4B_T2S;
+		}
 	}
 	pVBuff = (char *)LockVB(VSF_GENERAL, FSL_VIDEO_CREATE);
 	// stop initializing if allocation failed
@@ -1676,15 +1692,29 @@ IIndexedMesh *CRenderMesh::GetIndexedMesh(IIndexedMesh *pIdxMesh)
     pMesh->m_pNorms    [i] = SMeshNormal(n);
   }
 
-  if (m_eVF==EDefaultInputLayouts::P3S_C4B_T2S || m_eVF==EDefaultInputLayouts::P3F_C4B_T2F || m_eVF==EDefaultInputLayouts::P3S_N4B_C4B_T2S)
+  //ENODO: Added  P3S_C4B_C4B_T2S, P3F_C4B_C4B_T2F, P3S_N4B_C4B_C4B_T2S cases
+  if (m_eVF==EDefaultInputLayouts::P3S_C4B_T2S || m_eVF==EDefaultInputLayouts::P3F_C4B_T2F || m_eVF==EDefaultInputLayouts::P3S_N4B_C4B_T2S
+	|| m_eVF == EDefaultInputLayouts::P3S_C4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3F_C4B_C4B_T2F || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S)
   {
     strided_pointer<UCol> pColors;
     pColors.data = (UCol*)GetColorPtr(pColors.iStride, FSL_READ);
     pIdxMesh->SetColorCount(m_nVerts);
-		for (i = 0; i < (int)m_nVerts; i++)
-		{
+	for (i = 0; i < (int)m_nVerts; i++)
+	{
       pMesh->m_pColor0[i] = SMeshColor(pColors[i].r, pColors[i].g, pColors[i].b, pColors[i].a);
     }
+
+	//ENODO: Added  P3S_C4B_C4B_T2S, P3F_C4B_C4B_T2F, P3S_N4B_C4B_C4B_T2S cases
+	if (m_eVF == EDefaultInputLayouts::P3S_C4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3F_C4B_C4B_T2F || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S)
+	{
+		strided_pointer<UCol> pColors1;
+		pColors1.data = (UCol*)GetColor1Ptr(pColors1.iStride, FSL_READ);
+		pIdxMesh->SetColor1Count(m_nVerts);
+		for (i = 0; i < (int)m_nVerts; i++)
+		{
+			pMesh->m_pColor1[i] = SMeshColor(pColors1[i].r, pColors1[i].g, pColors1[i].b, pColors1[i].a);
+		}
+	}
   }
   UnlockStream(VSF_GENERAL);
 
@@ -1997,7 +2027,8 @@ void CRenderMesh::SetChunk(IMaterial *pNewMat, int nFirstVertId, int nVertCount,
 
 bool CRenderMesh::PrepareCachePos()
 {
-	if (!m_pCachePos && (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S))
+//ENODO: Added P3S_C4B_C4B_T2S and P3S_N4B_C4B_C4B_T2S
+	if (!m_pCachePos && (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_C4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S))
 	{
 		m_pCachePos = AllocateMeshData<Vec3>(m_nVerts);
 		if (m_pCachePos)
@@ -2012,7 +2043,8 @@ bool CRenderMesh::PrepareCachePos()
 bool CRenderMesh::CreateCachePos(byte *pSrc, uint32 nStrideSrc, uint nFlags)
 {
   PROFILE_FRAME(Mesh_CreateCachePos);
-  if (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S)
+//ENODO: Added P3S_C4B_C4B_T2S and P3S_N4B_C4B_C4B_T2S
+  if (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_C4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S)
 	{
 	#ifdef USE_VBIB_PUSH_DOWN
 		SREC_AUTO_LOCK(m_sResLock);//on USE_VBIB_PUSH_DOWN tick is executed in renderthread
@@ -2049,7 +2081,8 @@ bool CRenderMesh::CreateCachePos(byte *pSrc, uint32 nStrideSrc, uint nFlags)
 bool CRenderMesh::CreateCacheUVs(byte *pSrc, uint32 nStrideSrc, uint nFlags)
 {
 	PROFILE_FRAME(Mesh_CreateCacheUVs);
-	if (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S)
+//ENODO: Added P3S_C4B_C4B_T2S and P3S_N4B_C4B_C4B_T2S
+	if (m_eVF == EDefaultInputLayouts::P3S_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_C4B_C4B_T2S || m_eVF == EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S)
 	{
 		m_nFlagsCacheUVs = (nFlags & FSL_WRITE) != 0;
 		m_nFrameRequestCacheUVs = gRenDev->m_RP.m_TI[gRenDev->m_RP.m_nFillThreadID].m_nFrameUpdateID;
@@ -2140,6 +2173,21 @@ byte *CRenderMesh::GetColorPtr(int32& nStride, uint32 nFlags, int32 nOffset)
   if (offs >= 0)
     return &pData[offs];
   return NULL;
+}
+//ENODO: Added GetColor1Ptr method
+byte *CRenderMesh::GetColor1Ptr(int32& nStride, uint32 nFlags, int32 nOffset)
+{
+	PROFILE_FRAME(Mesh_GetColorPtr);
+	int nStr = 0;
+	byte *pData = (byte *)LockVB(VSF_GENERAL, nFlags, nOffset, 0, &nStr);
+	ASSERT_LOCK;
+	if (!pData)
+		return NULL;
+	nStride = nStr;
+	int8 offs = CDeviceObjectFactory::LookupInputLayout(_GetVertexFormat()).first.m_Offsets[SInputLayout::eOffset_Color1];
+	if (offs >= 0)
+		return &pData[offs];
+	return NULL;
 }
 byte *CRenderMesh::GetNormPtr(int32& nStride, uint32 nFlags, int32 nOffset)
 {
@@ -3652,7 +3700,8 @@ void CRenderMesh::GetRandomPos(PosNorm& ran, CRndGen& seed, EGeomForm eForm, SSk
 	if (vdata.aPos.data = (Vec3*)GetPosPtr(vdata.aPos.iStride, FSL_READ))
 	{
 		// Check possible sources for normals.
-		if (_GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_T2S || !GetStridedArray(vdata.aVert, VSF_GENERAL))
+//ENODO: Added P3S_N4B_C4B_C4B_T2S
+		if ((_GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_T2S && _GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S) || !GetStridedArray(vdata.aVert, VSF_GENERAL))
 			if (!GetStridedArray(vdata.aQTan, VSF_QTANGENTS))
 				GetStridedArray(vdata.aTan2, VSF_TANGENTS);
 

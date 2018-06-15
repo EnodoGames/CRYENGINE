@@ -81,7 +81,13 @@ struct EDefaultInputLayouts : InputLayoutHandle
 
 		V4Fi                  = 19,    //!< Instanced Vec4 stream
 
-		PreAllocated          = 20,    // from this value and up custom input layouts are assigned
+//ENODO: Added new vertex format with a second vertex color channel
+		P3F_C4B_C4B_T2F		  = 20,    //!< Vertex format for texture atlas material with texture wrapping
+		P3S_C4B_C4B_T2S			  = 21,
+		P3S_N4B_C4B_C4B_T2S		  = 22,
+
+//ENODO: Increased PreAllocated from 20 to 23
+		PreAllocated          = 23,    // from this value and up custom input layouts are assigned
 		MaxRenderMesh         = PreAllocated
 	};
 };
@@ -90,16 +96,29 @@ struct EDefaultInputLayouts : InputLayoutHandle
 typedef Vec4_tpl<int16> Vec4sf;   //!< Used for tangents only.
 
 //! bNeedNormals=1 - float normals; bNeedNormals=2 - byte normals
-inline InputLayoutHandle VertFormatForComponents(bool bNeedCol, bool bHasTC, bool bHasPS, bool bHasNormal)
+//ENODO: Added bNeedSecCol parameter
+inline InputLayoutHandle VertFormatForComponents(bool bNeedCol, bool bNeedSecCol, bool bHasTC, bool bHasPS, bool bHasNormal)
 {
 	InputLayoutHandle RequestedVertFormat;
 
 	if (bHasPS)
 		RequestedVertFormat = EDefaultInputLayouts::P3F_C4B_T4B_N3F2;
 	else if (bHasNormal)
-		RequestedVertFormat = EDefaultInputLayouts::P3S_N4B_C4B_T2S;
+	{
+//ENODO: Added bNeedSecCol condition
+		if (bNeedSecCol)
+			RequestedVertFormat = EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S;
+		else
+			RequestedVertFormat = EDefaultInputLayouts::P3S_N4B_C4B_T2S;
+	}
 	else
-		RequestedVertFormat = EDefaultInputLayouts::P3S_C4B_T2S;
+	{
+//ENODO: Added bNeedSecCol condition
+		if (bNeedSecCol)
+			RequestedVertFormat = EDefaultInputLayouts::P3S_C4B_C4B_T2S;
+		else
+			RequestedVertFormat = EDefaultInputLayouts::P3S_C4B_T2S;
+	}
 
 	return RequestedVertFormat;
 }
@@ -208,6 +227,16 @@ struct SVF_P3F_C4B_T2F
 	UCol color;
 	Vec2 st;
 };
+
+//ENODO: Added P3F_C4B_C4B_T2F struct
+struct SVF_P3F_C4B_C4B_T2F
+{
+	Vec3 xyz;
+	UCol color;
+	UCol color1;
+	Vec2 st;
+};
+
 struct SVF_TP3F_C4B_T2F
 {
 	Vec4 pos;
@@ -218,6 +247,16 @@ struct SVF_P3S_C4B_T2S
 {
 	Vec3f16 xyz;
 	UCol    color;
+	Vec2f16 st;
+
+	AUTO_STRUCT_INFO;
+};
+//ENODO: Added SVF_P3S_C4B_C4B_T2S struct
+struct SVF_P3S_C4B_C4B_T2S
+{
+	Vec3f16 xyz;
+	UCol    color;
+	UCol	color1;
 	Vec2f16 st;
 
 	AUTO_STRUCT_INFO;
@@ -237,6 +276,15 @@ struct SVF_P3S_N4B_C4B_T2S
 	Vec3f16 xyz;
 	UCol    normal;
 	UCol    color;
+	Vec2f16 st;
+};
+//ENODO: Added SVF_P3S_N4B_C4B_C4B_T2S struct
+struct SVF_P3S_N4B_C4B_C4B_T2S
+{
+	Vec3f16 xyz;
+	UCol    normal;
+	UCol    color;
+	UCol	color1;
 	Vec2f16 st;
 };
 

@@ -542,7 +542,8 @@ static void debugDumpMesh(CMesh& mesh, const char* filename)
 // . Sort vertices and indices for GPU cache
 bool CMeshCompiler::Compile(CMesh& mesh, int flags)
 {
-	assert(mesh.m_pPositionsF16 == 0);
+//ENODO: Removed assert on mesh.m_pPositionsF16 == 0
+	//assert(mesh.m_pPositionsF16 == 0);
 
 	if (mesh.GetFaceCount() == 0)
 	{
@@ -868,7 +869,11 @@ bool CMeshCompiler::Compile(CMesh& mesh, int flags)
 	mesh.m_bbox.Reset();
 	for (int i = 0, n = mesh.GetVertexCount(); i < n; ++i)
 	{
-		mesh.m_bbox.Add(mesh.m_pPositions[i]);
+//ENODO: Handled the cas of m_pPositionsF16
+		if(mesh.m_pPositions)
+			mesh.m_bbox.Add(mesh.m_pPositions[i]);
+		else
+			mesh.m_bbox.Add(mesh.m_pPositionsF16[i].ToVec3());
 	}
 
 	if (flags & MESH_COMPILE_VALIDATE)

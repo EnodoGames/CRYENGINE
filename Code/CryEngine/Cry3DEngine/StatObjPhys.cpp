@@ -141,7 +141,8 @@ void CStatObj::PhysicalizeCompiled(CNodeCGF* pNode, int bAppend)
 //////////////////////////////////////////////////////////////////////////
 bool CStatObj::PhysicalizeGeomType(int nGeomType, CMesh& mesh, float tolerance, int bAppend)
 {
-	assert(mesh.m_pPositionsF16 == 0);
+//ENODO: Removed assert
+	//assert(mesh.m_pPositionsF16 == 0);
 
 	std::vector<uint16> indices;
 	std::vector<char> faceMaterials;
@@ -175,6 +176,14 @@ bool CStatObj::PhysicalizeGeomType(int nGeomType, CMesh& mesh, float tolerance, 
 	Vec3* pVertices = NULL;
 	int nVerts = mesh.GetVertexCount();
 
+//ENODO: Handled mesh.m_pPositionsf16
+	if(mesh.m_pPositionsF16)
+	{
+		mesh.ReallocStream(CMesh::POSITIONS, nVerts);
+		for(int i = 0; i < nVerts; i++)
+			mesh.m_pPositions[i] = mesh.m_pPositionsF16[i].ToVec3();
+	}
+//ENODO: End of modification
 	pVertices = mesh.m_pPositions;
 
 	if (nVerts > 2)
@@ -231,6 +240,12 @@ bool CStatObj::PhysicalizeGeomType(int nGeomType, CMesh& mesh, float tolerance, 
 	// Free temporary verts array.
 	if (pVertices != mesh.m_pPositions)
 		delete[] pVertices;
+
+//ENODO: Handled mesh.m_pPositionsf16 (free the position stream that we used to create the physic geometry
+	if (mesh.m_pPositionsF16)
+	{
+		mesh.ReallocStream(CMesh::POSITIONS, 0);
+	}
 
 	return true;
 }

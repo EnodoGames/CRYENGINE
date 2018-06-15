@@ -652,7 +652,8 @@ void CHWShader_D3D::mfUpdateFXVertexFormat(SHWSInstance* pInst, CShader* pSH)
 	}
 }
 
-void CHWShader_D3D::mfPostVertexFormat(SHWSInstance* pInst, CHWShader_D3D* pHWSH, bool bCol, byte bNormal, bool bTC0, bool bTC1[2], bool bPSize, bool bTangent[2], bool bBitangent[2], bool bHWSkin, bool bSH[2], bool bVelocity, bool bMorph)
+//ENODO: Added bSecCol parameter
+void CHWShader_D3D::mfPostVertexFormat(SHWSInstance* pInst, CHWShader_D3D* pHWSH, bool bCol, bool bSecCol, byte bNormal, bool bTC0, bool bTC1[2], bool bPSize, bool bTangent[2], bool bBitangent[2], bool bHWSkin, bool bSH[2], bool bVelocity, bool bMorph)
 {
 	if (bBitangent[0])
 		pInst->m_VStreamMask_Decl |= 1 << VSF_TANGENTS;
@@ -682,7 +683,8 @@ void CHWShader_D3D::mfPostVertexFormat(SHWSInstance* pInst, CHWShader_D3D* pHWSH
 		pInst->m_VStreamMask_Stream |= VSM_MORPHBUDDY;
 	}
 
-	InputLayoutHandle eVF = VertFormatForComponents(bCol, bTC0, bPSize, bNormal != 0);
+//ENODO: Added bSecCol parameter
+	InputLayoutHandle eVF = VertFormatForComponents(bCol, bSecCol, bTC0, bPSize, bNormal != 0);
 	pInst->m_nVertexFormat = eVF;
 }
 
@@ -854,7 +856,8 @@ InputLayoutHandle CHWShader_D3D::mfVertexFormat(SHWSInstance* pInst, CHWShader_D
 #endif
 	}
 
-	mfPostVertexFormat(pInst, pSH, bCol, bNormal, bTC0, bTC1, bPSize, bTangent, bBitangent, bHWSkin, bSH, bVelocity, bMorph);
+//ENODO: Added bSecCol parameter
+	mfPostVertexFormat(pInst, pSH, bCol, bSecCol, bNormal, bTC0, bTC1, bPSize, bTangent, bBitangent, bHWSkin, bSH, bVelocity, bMorph);
 	
 	if (pConstantTable != pShaderReflection)
 	{

@@ -434,6 +434,8 @@ public:
 	virtual byte* GetPosPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
 	virtual byte* GetNormPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
 	virtual byte* GetColorPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
+//ENODO: Added GetColor1Ptr
+	virtual byte* GetColor1Ptr(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
 	virtual byte* GetUVPtrNoCache(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
 	virtual byte* GetUVPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) final;
 

@@ -192,6 +192,8 @@ struct IRenderMesh
 	virtual byte*                                GetPosPtrNoCache(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
 	virtual byte*                                GetPosPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
 	virtual byte*                                GetColorPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
+//ENODO: Added GetColor1Ptr
+	virtual byte*								 GetColor1Ptr(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
 	virtual byte*                                GetNormPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
 	virtual byte*                                GetUVPtrNoCache(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;
 	virtual byte*                                GetUVPtr(int32& nStride, uint32 nFlags, int32 nOffset = 0) = 0;

@@ -45,6 +45,18 @@ void CompactPositions(SVF_P3F_C4B_T2F* pVBuff, SSetMeshIntData& data, CMesh& mes
 			pVBuff[i].xyz = mesh.m_pPositions[beg + i] - posOffset;
 }
 
+//ENODO: Added template specialization for SVF_P3F_C4B_C4B_T2F
+template<>
+void CompactPositions(SVF_P3F_C4B_C4B_T2F* pVBuff, SSetMeshIntData& data, CMesh& mesh, const Vec3& posOffset, uint32 beg, uint32 end)
+{
+	if (mesh.m_pPositionsF16)
+		for (size_t i = 0; i < end; ++i)
+			pVBuff[i].xyz = mesh.m_pPositionsF16[beg + i].ToVec3();
+	else
+		for (size_t i = 0; i < end; ++i)
+			pVBuff[i].xyz = mesh.m_pPositions[beg + i] - posOffset;
+}
+
 template<typename T>
 void CompactUVs(T* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
 {
@@ -65,6 +77,15 @@ void CompactUVs(SVF_P3F_C4B_T2F* pVBuff, SSetMeshIntData& data, CMesh& mesh, uin
 		for (size_t i = 0; i < end; ++i)
 			mesh.m_pTexCoord[beg + i].GetUV(pVBuff[i].st);
 }
+
+//ENODO: Added template specialization for SVF_P3F_C4B_C4B_T2F
+template<>
+void CompactUVs(SVF_P3F_C4B_C4B_T2F* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+{
+	if (mesh.m_pTexCoord)
+		for (size_t i = 0; i < end; ++i)
+			mesh.m_pTexCoord[beg + i].GetUV(pVBuff[i].st);
+}
 }
 
 template<size_t Size>
@@ -77,6 +98,22 @@ struct StreamCompactor<VSF_GENERAL, Size>
 	}
 
 	static void CompactNormals(SVF_P3S_N4B_C4B_T2S* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+	{
+		if (mesh.m_pNorms)
+			for (size_t i = 0; i < end; ++i)
+			{
+				Vec3 n = mesh.m_pNorms[beg + i].GetN();
+
+				pVBuff[i].normal.bcolor[0] = (byte)(n[0] * 127.5f + 128.0f);
+				pVBuff[i].normal.bcolor[1] = (byte)(n[1] * 127.5f + 128.0f);
+				pVBuff[i].normal.bcolor[2] = (byte)(n[2] * 127.5f + 128.0f);
+
+				SwapEndian(pVBuff[i].normal.dcolor);
+			}
+	}
+
+//ENODO: Added CompactNormals for P3S_N4B_C4B_C4B_T2S
+	static void CompactNormals(SVF_P3S_N4B_C4B_C4B_T2S* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
 	{
 		if (mesh.m_pNorms)
 			for (size_t i = 0; i < end; ++i)
@@ -111,6 +148,27 @@ struct StreamCompactor<VSF_GENERAL, Size>
 				pVBuff[i].color.dcolor = ~0;
 	}
 
+//ENODO: generic version of CompactColors1
+	template<typename T>
+	static void CompactColors1(T* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+	{
+		if (mesh.m_pColor1)
+			for (size_t i = 0; i < end; ++i)
+			{
+				ColorB c = mesh.m_pColor1[beg + i].GetRGBA();
+
+				pVBuff[i].color1.bcolor[0] = c.b;
+				pVBuff[i].color1.bcolor[1] = c.g;
+				pVBuff[i].color1.bcolor[2] = c.r;
+				pVBuff[i].color1.bcolor[3] = c.a;
+
+				SwapEndian(pVBuff[i].color1.dcolor);
+			}
+		else
+			for (size_t i = 0; i < end; ++i)
+				pVBuff[i].color1.dcolor = ~0;
+	}
+
 	static void CompactColors1(SVF_P2S_N4B_C4B_T1F* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
 	{
 		if (mesh.m_pColor1)
@@ -121,6 +179,51 @@ struct StreamCompactor<VSF_GENERAL, Size>
 				pVBuff[i].normal.bcolor[3] = c.b;
 			}
 	}
+
+//ENODO: Added a template specialization for SVF_P3S_C4B_C4B_T2S
+	/*static void CompactColors1(SVF_P3S_C4B_C4B_T2S* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+	{
+		if (mesh.m_pColor1)
+			for (size_t i = 0; i < end; ++i)
+			{
+				ColorB c = mesh.m_pColor1[beg + i].GetRGBA();
+
+				pVBuff[i].color1.bcolor[3] = c.b;
+			}
+		else
+			for (size_t i = 0; i < end; ++i)
+				pVBuff[i].color1.dcolor = ~0;
+	}*/
+
+//ENODO: Added a template specialization for SVF_P3F_C4B_C4B_T2F
+	/*static void CompactColors1(SVF_P3F_C4B_C4B_T2F* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+	{
+		if (mesh.m_pColor1)
+			for (size_t i = 0; i < end; ++i)
+			{
+				ColorB c = mesh.m_pColor1[beg + i].GetRGBA();
+
+				pVBuff[i].color1.bcolor[3] = c.b;
+			}
+		else
+			for (size_t i = 0; i < end; ++i)
+				pVBuff[i].color1.dcolor = ~0;
+	}*/
+
+//ENODO: Added a template specialization for SVF_P3F_C4B_C4B_T2F
+	/*static void CompactColors1(SVF_P3S_N4B_C4B_C4B_T2S* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
+	{
+		if (mesh.m_pColor1)
+			for (size_t i = 0; i < end; ++i)
+			{
+				ColorB c = mesh.m_pColor1[beg + i].GetRGBA();
+
+				pVBuff[i].color1.bcolor[3] = c.b;
+			}
+		else
+			for (size_t i = 0; i < end; ++i)
+				pVBuff[i].color1.dcolor = ~0;
+	}*/
 
 	template<typename T>
 	static void CompactUVs(T* pVBuff, SSetMeshIntData& data, CMesh& mesh, uint32 beg, uint32 end)
@@ -138,34 +241,75 @@ struct StreamCompactor<VSF_GENERAL, Size>
 
 			if (data.m_pMesh->m_pPositions)
 			{
-				size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3F_C4B_T2F)] & (TRANSFER_ALIGNMENT - 1);
-				SVF_P3F_C4B_T2F* pVBuff = alias_cast<SVF_P3F_C4B_T2F*>(&buffer[dstPad]);
-				amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
-
-				CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
-				CompactUVs(pVBuff, data, mesh, beg, amount);
-				CompactColors0(pVBuff, data, mesh, beg, amount);
-
-				transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
-			}
-			else
-			{
-				size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3S_C4B_T2S)] & (TRANSFER_ALIGNMENT - 1);
-				SVF_P3S_C4B_T2S* pVBuff = alias_cast<SVF_P3S_C4B_T2S*>(&buffer[dstPad]);
-				amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
-
-				if (mesh.m_pP3S_C4B_T2S)
+//ENODO: Added a if to test if there is a m_pColor1
+				if (data.m_pMesh->m_pColor1)
 				{
-					memcpy(pVBuff, &mesh.m_pP3S_C4B_T2S[beg], sizeof(pVBuff[0]) * amount);
-				}
-				else
-				{
+					size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3F_C4B_C4B_T2F)] & (TRANSFER_ALIGNMENT - 1);
+					SVF_P3F_C4B_C4B_T2F* pVBuff = alias_cast<SVF_P3F_C4B_C4B_T2F*>(&buffer[dstPad]);
+					amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
+
 					CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
 					CompactUVs(pVBuff, data, mesh, beg, amount);
 					CompactColors0(pVBuff, data, mesh, beg, amount);
-				}
+					CompactColors1(pVBuff, data, mesh, beg, amount);
 
-				transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
+					transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
+				}
+				else
+				{
+					size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3F_C4B_T2F)] & (TRANSFER_ALIGNMENT - 1);
+					SVF_P3F_C4B_T2F* pVBuff = alias_cast<SVF_P3F_C4B_T2F*>(&buffer[dstPad]);
+					amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
+
+					CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
+					CompactUVs(pVBuff, data, mesh, beg, amount);
+					CompactColors0(pVBuff, data, mesh, beg, amount);
+
+					transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
+				}
+			}
+			else
+			{
+				//ENODO: Added a if to test if there is a m_pColor1
+				if (data.m_pMesh->m_pColor1)
+				{
+					size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3S_C4B_C4B_T2S)] & (TRANSFER_ALIGNMENT - 1);
+					SVF_P3S_C4B_C4B_T2S* pVBuff = alias_cast<SVF_P3S_C4B_C4B_T2S*>(&buffer[dstPad]);
+					amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
+
+// 					if (mesh.m_pP3S_C4B_C4B_T2S)
+// 					{
+// 						memcpy(pVBuff, &mesh.m_pP3S_C4B_C4B_T2S[beg], sizeof(pVBuff[0]) * amount);
+// 					}
+// 					else
+// 					{
+						CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
+						CompactUVs(pVBuff, data, mesh, beg, amount);
+						CompactColors0(pVBuff, data, mesh, beg, amount);
+						CompactColors1(pVBuff, data, mesh, beg, amount);
+					//}
+
+					transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
+				}
+				else
+				{
+					size_t dstPad = (size_t)&data.m_pVBuff[beg * sizeof(SVF_P3S_C4B_T2S)] & (TRANSFER_ALIGNMENT - 1);
+					SVF_P3S_C4B_T2S* pVBuff = alias_cast<SVF_P3S_C4B_T2S*>(&buffer[dstPad]);
+					amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
+
+					if (mesh.m_pP3S_C4B_T2S)
+					{
+						memcpy(pVBuff, &mesh.m_pP3S_C4B_T2S[beg], sizeof(pVBuff[0]) * amount);
+					}
+					else
+					{
+						CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
+						CompactUVs(pVBuff, data, mesh, beg, amount);
+						CompactColors0(pVBuff, data, mesh, beg, amount);
+					}
+
+					transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
+				}
 			}
 
 			return amount;

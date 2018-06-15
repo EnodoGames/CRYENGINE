@@ -506,17 +506,21 @@ struct SInputLayout
 	const SShaderBlob*                    m_pVertexShader; // Shader template
 	uint16                                m_Slots;         // Number of slots mapped (1 for base layouts, >= 1 for compount layouts
 	uint16                                m_Stride;        // Stride of all streams counted together
-	std::array<int8, 4>                   m_Offsets;       // The offsets of "POSITION", "COLOR", "TEXCOORD" and "NORMAL"
+//ENODO: Set the size of the array to 5 (up from 4) to match the number of enum values and added "COLOR1" in the comment
+	std::array<int8, 5>                   m_Offsets;       // The offsets of "POSITION", "COLOR", "COLOR1", "TEXCOORD" and "NORMAL"
 
 	enum
 	{
 		eOffset_Position,
 		eOffset_Color,
+//ENODO: Added eOffset_Color1
+		eOffset_Color1,
 		eOffset_TexCoord,
 		eOffset_Normal,
 	};
 
-	SInputLayout() : m_Slots(0), m_Stride(0), m_pVertexShader(nullptr) { m_Offsets[eOffset_Position] = m_Offsets[eOffset_Color] = m_Offsets[eOffset_TexCoord] = m_Offsets[eOffset_Normal] = -1; }
+	//ENODO: Added eOffset_Color1
+	SInputLayout() : m_Slots(0), m_Stride(0), m_pVertexShader(nullptr) { m_Offsets[eOffset_Position] = m_Offsets[eOffset_Color] = m_Offsets[eOffset_Color1] = m_Offsets[eOffset_TexCoord] = m_Offsets[eOffset_Normal] = -1; }
 
 	SInputLayout(const SInputLayout& src) : m_Declaration(src.m_Declaration), m_Slots(src.m_Slots), m_Stride(src.m_Stride), m_Offsets(src.m_Offsets), m_pVertexShader(src.m_pVertexShader) { }
 	SInputLayout(const SInputLayout&& src) : m_Declaration(src.m_Declaration), m_Slots(src.m_Slots), m_Stride(src.m_Stride), m_Offsets(src.m_Offsets), m_pVertexShader(src.m_pVertexShader) { }
@@ -547,7 +551,8 @@ struct SInputLayout
 
 	void CalculateOffsets()
 	{
-		m_Offsets[eOffset_Position] = m_Offsets[eOffset_Color] = m_Offsets[eOffset_TexCoord] = m_Offsets[eOffset_Normal] = -1;
+		//ENODO: Added eOffset_Color1
+		m_Offsets[eOffset_Position] = m_Offsets[eOffset_Color] = m_Offsets[eOffset_Color1] = m_Offsets[eOffset_TexCoord] = m_Offsets[eOffset_Normal] = -1;
 		for (int n = 0; n < m_Declaration.size(); ++n)
 		{
 			if (!m_Declaration[n].SemanticName)
@@ -555,8 +560,11 @@ struct SInputLayout
 
 			if ((m_Offsets[eOffset_Position] == -1) && (!stricmp(m_Declaration[n].SemanticName, "POSITION")))
 				 m_Offsets[eOffset_Position] = m_Declaration[n].AlignedByteOffset;
-			if ((m_Offsets[eOffset_Color   ] == -1) && (!stricmp(m_Declaration[n].SemanticName, "COLOR"   )))
+			if ((m_Offsets[eOffset_Color   ] == -1) && (!stricmp(m_Declaration[n].SemanticName, "COLOR"   )) && m_Declaration[n].SemanticIndex == 0)
 				 m_Offsets[eOffset_Color   ] = m_Declaration[n].AlignedByteOffset;
+//ENODO: Added eOffset_Color1
+			if ((m_Offsets[eOffset_Color1] == -1) && (!stricmp(m_Declaration[n].SemanticName, "COLOR")) && m_Declaration[n].SemanticIndex == 1)
+				m_Offsets[eOffset_Color1] = m_Declaration[n].AlignedByteOffset;
 			if ((m_Offsets[eOffset_TexCoord] == -1) && (!stricmp(m_Declaration[n].SemanticName, "TEXCOORD")))
 				 m_Offsets[eOffset_TexCoord] = m_Declaration[n].AlignedByteOffset;
 			if ((m_Offsets[eOffset_Normal  ] == -1) && (!stricmp(m_Declaration[n].SemanticName, "NORMAL"  ) || !stricmp(m_Declaration[n].SemanticName, "TANGENT" )))

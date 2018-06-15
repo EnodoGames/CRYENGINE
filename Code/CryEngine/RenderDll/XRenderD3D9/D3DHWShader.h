@@ -1339,7 +1339,8 @@ public:
 
 	static void mfCreateBinds(SHWSInstance* pInst, void* pConstantTable, byte* pShader, int nSize);
 	bool        mfUpdateSamplers(CShader* pSH);
-	static void mfPostVertexFormat(SHWSInstance * pInst, CHWShader_D3D * pHWSH, bool bCol, byte bNormal, bool bTC0, bool bTC1[2], bool bPSize, bool bTangent[2], bool bBitangent[2], bool bHWSkin, bool bSH[2], bool bMorphTarget, bool bMorph);
+//ENODO: Added bSecCol parameter
+	static void mfPostVertexFormat(SHWSInstance * pInst, CHWShader_D3D * pHWSH, bool bCol, bool bSecCol, byte bNormal, bool bTC0, bool bTC1[2], bool bPSize, bool bTangent[2], bool bBitangent[2], bool bHWSkin, bool bSH[2], bool bMorphTarget, bool bMorph);
 	void        mfUpdateFXVertexFormat(SHWSInstance* pInst, CShader* pSH);
 
 	/*EHWSProfile mfGetCurrentProfile()

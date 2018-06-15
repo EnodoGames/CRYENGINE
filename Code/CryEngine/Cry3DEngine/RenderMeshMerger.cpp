@@ -219,7 +219,8 @@ void CRenderMeshMerger::MakeListOfAllCRenderChunks(SMergeInfo& info)
 		byte* pNorm = 0;
 		byte* pTangs = 0;
 
-		if (pRM->GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_T2S)
+//ENODO: Added P3S_N4B_C4B_C4B_T2S condition
+		if (pRM->GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_T2S && pRM->GetVertexFormat() != EDefaultInputLayouts::P3S_N4B_C4B_C4B_T2S)
 		{
 			pTangs = pRM->GetTangentPtr(nTangsStride, FSL_READ);
 		}

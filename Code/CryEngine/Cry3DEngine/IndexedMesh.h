@@ -87,6 +87,12 @@ public:
 		CMesh::ReallocStream(COLORS_0, nNewCount);
 	}
 
+	//ENODO: Added SetColor1Count
+	virtual void SetColor1Count(int nNewCount)
+	{
+		CMesh::ReallocStream(COLORS_1, nNewCount);
+	}
+
 	virtual int GetTexCoordCount() const
 	{
 		return CMesh::GetTexCoordCount();

@@ -278,6 +278,32 @@ static const D3D11_INPUT_ELEMENT_DESC VertexDecl_V4Fi[] =
 	{ "TEXCOORD"    , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 3, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 }
 };
 
+//ENODO: Added P3F_C4B_C4B_T2F, P3S_C4B_C4B_T2S and P3S_N4B_C4B_C4B_T2S vertex declaration
+static const D3D11_INPUT_ELEMENT_DESC VertexDecl_P3F_C4B_C4B_T2F[] =
+{
+	{ "POSITION"    , 0, DXGI_FORMAT_R32G32B32_FLOAT   , 0, offsetof(SVF_P3F_C4B_C4B_T2F     , xyz), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"      , 0, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3F_C4B_C4B_T2F     , color), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"      , 1, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3F_C4B_C4B_T2F     , color1), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD"    , 0, DXGI_FORMAT_R32G32_FLOAT      , 0, offsetof(SVF_P3F_C4B_C4B_T2F     , st), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+
+static const D3D11_INPUT_ELEMENT_DESC VertexDecl_P3S_C4B_C4B_T2S[] =
+{
+	{ "POSITION"    , 0, DXGI_FORMAT_R16G16B16A16_FLOAT, 0, offsetof(SVF_P3S_C4B_C4B_T2S     , xyz), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"       , 0, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3S_C4B_C4B_T2S     , color), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"       , 1, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3S_C4B_C4B_T2S     , color1), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD"    , 0, DXGI_FORMAT_R16G16_FLOAT      , 0, offsetof(SVF_P3S_C4B_C4B_T2S     , st), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+
+static const D3D11_INPUT_ELEMENT_DESC VertexDecl_P3S_N4B_C4B_C4B_T2S[] =
+{
+	{ "POSITION"    , 0, DXGI_FORMAT_R16G16B16A16_FLOAT, 0, offsetof(SVF_P3S_N4B_C4B_C4B_T2S, xyz), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL"      , 0, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3S_N4B_C4B_C4B_T2S, normal), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"       , 0, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3S_N4B_C4B_C4B_T2S, color), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR"       , 1, DXGI_FORMAT_R8G8B8A8_UNORM    , 0, offsetof(SVF_P3S_N4B_C4B_C4B_T2S, color1), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD"    , 0, DXGI_FORMAT_R16G16_FLOAT      , 0, offsetof(SVF_P3S_N4B_C4B_C4B_T2S, st), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+
 static const struct
 {
 	size_t numDescs;
@@ -312,7 +338,12 @@ VertexDecls[EDefaultInputLayouts::PreAllocated] =
 	{ CRY_ARRAY_COUNT(VertexDecl_V3F             ), VertexDecl_V3F              },
 	{ CRY_ARRAY_COUNT(VertexDecl_W2F             ), VertexDecl_W2F              },
 
-	{ CRY_ARRAY_COUNT(VertexDecl_V4Fi            ), VertexDecl_V4Fi             }
+	{ CRY_ARRAY_COUNT(VertexDecl_V4Fi            ), VertexDecl_V4Fi             },
+
+	//ENODO: Added P3F_C4B_C4B_T2F, P3S_C4B_C4B_T2S, P3S_N4B_C4B_C4B_T2S vertex declaration
+	{ CRY_ARRAY_COUNT(VertexDecl_P3F_C4B_C4B_T2F ), VertexDecl_P3F_C4B_C4B_T2F  },
+	{ CRY_ARRAY_COUNT(VertexDecl_P3S_C4B_C4B_T2S), VertexDecl_P3S_C4B_C4B_T2S   },
+	{ CRY_ARRAY_COUNT(VertexDecl_P3S_N4B_C4B_C4B_T2S), VertexDecl_P3S_N4B_C4B_C4B_T2S }
 };
 
 void CDeviceObjectFactory::AllocatePredefinedInputLayouts()

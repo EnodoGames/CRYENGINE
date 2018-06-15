@@ -2013,6 +2013,10 @@ struct IIndexedMesh
 	//! Reallocates colors. Calling this function invalidates SMeshDescription pointers.
 	virtual void SetColorCount(int nNewCount) = 0;
 
+//ENODO: Added SetColor1Count
+	//! Reallocates second stream of colors. Calling this function invalidates SMeshDescription pointers.
+	virtual void SetColor1Count(int nNewCount) = 0;
+
 	//! Return number of allocated texture coordinates.
 	virtual int GetTexCoordCount() const = 0;
 
