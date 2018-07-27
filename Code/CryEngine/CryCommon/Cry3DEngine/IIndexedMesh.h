@@ -868,6 +868,8 @@ public:
 		VERT_MATS,
 		QTANGENTS,
 		P3S_C4B_T2S,
+//ENODO: Added P3S_C4B_C4B_T2S stream
+		P3S_C4B_C4B_T2S,
 
 		EXTRABONEMAPPING,     //!< Extra stream. Does not have a stream ID in the CGF. Its data is saved at the end of the BONEMAPPING stream.
 
@@ -891,6 +893,8 @@ public:
 
 	int*                     m_pVertMats;
 	SVF_P3S_C4B_T2S*         m_pP3S_C4B_T2S;
+	//ENODO: Added m_pP3S_C4B_C4B_T2S
+	SVF_P3S_C4B_C4B_T2S*     m_pP3S_C4B_C4B_T2S;
 
 	SMeshBoneMapping_uint16* m_pBoneMapping;      //!< Bone-mapping for the final render-mesh.
 	SMeshBoneMapping_uint16* m_pExtraBoneMapping; //!< Bone indices and weights for bones 5 to 8.
@@ -963,6 +967,8 @@ public:
 		m_pColor1 = NULL;
 		m_pVertMats = NULL;
 		m_pP3S_C4B_T2S = NULL;
+		//ENODO: Added m_pP3S_C4B_C4B_T2S
+		m_pP3S_C4B_C4B_T2S = NULL;
 		m_pBoneMapping = NULL;
 		m_pExtraBoneMapping = NULL;
 
@@ -998,7 +1004,8 @@ public:
 	}
 	int GetVertexCount() const
 	{
-		return max(max(m_streamSize[POSITIONS], m_streamSize[POSITIONSF16]), m_streamSize[P3S_C4B_T2S]);
+		//ENODO: Added max with P3S_C4B_C4B_T2S stream
+		return max(max(max(m_streamSize[POSITIONS], m_streamSize[POSITIONSF16]), m_streamSize[P3S_C4B_T2S]), m_streamSize[P3S_C4B_C4B_T2S]);
 	}
 	int GetTexCoordCount() const
 	{
@@ -1171,6 +1178,11 @@ public:
 		case P3S_C4B_T2S:
 			pStream = m_pP3S_C4B_T2S;
 			nElementSize = sizeof(SVF_P3S_C4B_T2S);
+			break;
+		//ENODO: Added case P3S_C4B_C4B_T2S:
+		case P3S_C4B_C4B_T2S:
+			pStream = m_pP3S_C4B_C4B_T2S;
+			nElementSize = sizeof(SVF_P3S_C4B_C4B_T2S);
 			break;
 		default:
 			// unknown stream
@@ -1645,6 +1657,11 @@ public:
 				{
 					p = m_pP3S_C4B_T2S[index].xyz.ToVec3();
 				}
+				//ENODO: Added test for m_pP3S_C4B_C4B_T2S
+				else if (m_pP3S_C4B_C4B_T2S)
+				{
+					p = m_pP3S_C4B_C4B_T2S[index].xyz.ToVec3();
+				}
 				if (!_finite(pp->x))
 				{
 					if (ppErrorDescription) ppErrorDescription[0] = "a mesh subset contains a vertex with damaged x component";
@@ -1950,6 +1967,11 @@ private:
 			break;
 		case P3S_C4B_T2S:
 			m_pP3S_C4B_T2S = (SVF_P3S_C4B_T2S*)pStream;
+			m_nCoorCount = nNewCount;
+			break;
+		//ENODO: Added case P3S_C4B_C4B_T2S:
+		case P3S_C4B_C4B_T2S:
+			m_pP3S_C4B_C4B_T2S = (SVF_P3S_C4B_C4B_T2S*)pStream;
 			m_nCoorCount = nNewCount;
 			break;
 		default:

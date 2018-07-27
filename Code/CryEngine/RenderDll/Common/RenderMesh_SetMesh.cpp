@@ -277,17 +277,17 @@ struct StreamCompactor<VSF_GENERAL, Size>
 					SVF_P3S_C4B_C4B_T2S* pVBuff = alias_cast<SVF_P3S_C4B_C4B_T2S*>(&buffer[dstPad]);
 					amount = min((uint32)(end - beg), (uint32)(Size / sizeof(pVBuff[0])));
 
-// 					if (mesh.m_pP3S_C4B_C4B_T2S)
-// 					{
-// 						memcpy(pVBuff, &mesh.m_pP3S_C4B_C4B_T2S[beg], sizeof(pVBuff[0]) * amount);
-// 					}
-// 					else
-// 					{
+					if (mesh.m_pP3S_C4B_C4B_T2S)
+					{
+						memcpy(pVBuff, &mesh.m_pP3S_C4B_C4B_T2S[beg], sizeof(pVBuff[0]) * amount);
+					}
+					else
+					{
 						CompactPositions(pVBuff, data, mesh, posOffset, beg, amount);
 						CompactUVs(pVBuff, data, mesh, beg, amount);
 						CompactColors0(pVBuff, data, mesh, beg, amount);
 						CompactColors1(pVBuff, data, mesh, beg, amount);
-					//}
+					}
 
 					transfer_writecombined(&data.m_pVBuff[beg * sizeof(pVBuff[0])], &buffer[dstPad], amount * sizeof(pVBuff[0]));
 				}
